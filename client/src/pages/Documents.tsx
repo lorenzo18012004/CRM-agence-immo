@@ -149,7 +149,7 @@ export default function Documents() {
           >
             {/* Options Menu */}
             <div style={{ position: 'absolute', top: 12, right: 12 }}>
-              <IconButton size="small" onClick={(e) => handleMenuClick(e, doc.id)}>
+              <IconButton size="small" onClick={handleMenuClick}>
                 <MoreIcon fontSize="small" />
               </IconButton>
             </div>
