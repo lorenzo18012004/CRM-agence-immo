@@ -14,7 +14,6 @@ import {
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  Chat as ChatIcon,
   Send as SendIcon,
   MoreVert as MoreIcon,
   Phone as PhoneIcon,
@@ -22,7 +21,6 @@ import {
   AttachFile as AttachIcon
 } from '@mui/icons-material';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
 
 interface Message {
   id: string;
