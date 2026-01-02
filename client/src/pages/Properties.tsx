@@ -233,7 +233,7 @@ export default function Properties() {
             }}
             sx={{ minWidth: 200 }}
           />
-          <Tabs value={filterType} onChange={(e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
+          <Tabs value={filterType} onChange={(_e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
             <Tab label="Tous" value="ALL" sx={{ textTransform: 'none' }} />
             <Tab label="Villas" value="VILLA" sx={{ textTransform: 'none' }} />
             <Tab label="Appartements" value="APARTMENT" sx={{ textTransform: 'none' }} />
