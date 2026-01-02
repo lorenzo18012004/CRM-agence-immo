@@ -105,9 +105,16 @@ router.post(
           logo: agency.logo,
         },
       });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Erreur serveur' });
+    } catch (error: any) {
+      console.error('Error in verify-agency:', error);
+      // Log more details in development
+      const errorMessage = process.env.NODE_ENV === 'production' 
+        ? 'Erreur serveur' 
+        : error.message || 'Erreur serveur';
+      res.status(500).json({ 
+        error: errorMessage,
+        details: process.env.NODE_ENV !== 'production' ? error.stack : undefined
+      });
     }
   }
 );
