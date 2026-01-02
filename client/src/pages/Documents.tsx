@@ -8,7 +8,6 @@ import {
   CircularProgress,
   Tabs,
   Tab,
-  Typography,
   Menu,
   MenuItem
 } from '@mui/material';
@@ -23,7 +22,6 @@ import {
   Delete as DeleteIcon,
   Folder as FolderIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -50,7 +48,7 @@ export default function Documents() {
   const [filterType, setFilterType] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [selectedDocId] = useState<string | null>(null);
 
   useEffect(() => {
     // Simulate Fetch
@@ -126,7 +124,7 @@ export default function Documents() {
             }}
             sx={{ minWidth: 250 }}
           />
-          <Tabs value={filterType} onChange={(e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
+          <Tabs value={filterType} onChange={(_e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
             <Tab label="Tous" value="ALL" sx={{ textTransform: 'none' }} />
             <Tab label="Contrats" value="CONTRACT" sx={{ textTransform: 'none' }} />
             <Tab label="Identité" value="IDENTITY" sx={{ textTransform: 'none' }} />

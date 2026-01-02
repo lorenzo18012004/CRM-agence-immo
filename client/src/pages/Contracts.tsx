@@ -3,15 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
-  IconButton,
   TextField,
   InputAdornment,
   CircularProgress,
   Chip,
   Tabs,
-  Tab,
-  Typography,
-  Avatar
+  Tab
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -22,7 +19,6 @@ import {
   CheckCircle as SignedIcon,
   Pending as PendingIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -140,7 +136,7 @@ export default function Contracts() {
             }}
             sx={{ minWidth: 250 }}
           />
-          <Tabs value={filterStatus} onChange={(e, v) => setFilterStatus(v)} textColor="inherit" indicatorColor="primary">
+          <Tabs value={filterStatus} onChange={(_e, v) => setFilterStatus(v)} textColor="inherit" indicatorColor="primary">
             <Tab label="Tous" value="ALL" sx={{ textTransform: 'none' }} />
             <Tab label="Signés" value="COMPLETED" sx={{ textTransform: 'none' }} />
             <Tab label="En cours" value="ACTIVE" sx={{ textTransform: 'none' }} />

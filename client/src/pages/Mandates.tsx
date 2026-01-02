@@ -3,27 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
-  IconButton,
   TextField,
   InputAdornment,
   CircularProgress,
   Chip,
   Tabs,
   Tab,
-  Typography,
   Avatar
 } from '@mui/material';
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  Visibility as ViewIcon,
   Folder as FolderIcon,
-  Business as BusinessIcon,
-  Person as PersonIcon,
   CalendarToday as CalendarIcon,
   Description as DescriptionIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -40,12 +34,6 @@ interface Mandate {
   client?: { id: string; firstName: string; lastName: string; avatar?: string };
   user?: { id: string; firstName: string; lastName: string };
 }
-
-const typeLabels: Record<string, string> = {
-  EXCLUSIVE: 'Exclusif',
-  NON_EXCLUSIVE: 'Simple',
-  OPEN: 'Semi-Exclusif',
-};
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'var(--success-color)',
@@ -149,7 +137,7 @@ export default function Mandates() {
             }}
             sx={{ minWidth: 250 }}
           />
-          <Tabs value={filterStatus} onChange={(e, v) => setFilterStatus(v)} textColor="inherit" indicatorColor="primary">
+          <Tabs value={filterStatus} onChange={(_e, v) => setFilterStatus(v)} textColor="inherit" indicatorColor="primary">
             <Tab label="Tous" value="ALL" sx={{ textTransform: 'none' }} />
             <Tab label="Actifs" value="ACTIVE" sx={{ textTransform: 'none' }} />
             <Tab label="Expirés" value="EXPIRED" sx={{ textTransform: 'none' }} />
