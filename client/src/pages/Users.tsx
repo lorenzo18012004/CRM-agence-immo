@@ -6,7 +6,6 @@ import {
   TextField,
   InputAdornment,
   CircularProgress,
-  Typography,
   Avatar,
   Chip
 } from '@mui/material';
@@ -18,7 +17,6 @@ import {
   Phone as PhoneIcon,
   MoreVert as MoreIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { User } from '../types';
 
 const roleLabels: Record<string, string> = {

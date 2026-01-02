@@ -2,26 +2,19 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  IconButton,
-  TextField,
-  InputAdornment,
   CircularProgress,
-  Typography,
   Chip,
-  Checkbox,
   Tabs,
   Tab
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Search as SearchIcon,
   CheckCircle as CheckIcon,
   RadioButtonUnchecked as UncheckIcon,
   Flag as PriorityIcon,
   Event as DateIcon,
   Assignment as TaskIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -41,13 +34,6 @@ const priorityColors: Record<string, string> = {
   MEDIUM: 'var(--info-color)',
   HIGH: 'var(--primary)',
   URGENT: 'var(--danger-color)',
-};
-
-const statusLabels: Record<string, string> = {
-  PENDING: 'À faire',
-  IN_PROGRESS: 'En cours',
-  COMPLETED: 'Terminée',
-  CANCELLED: 'Annulée',
 };
 
 // --- MOCK DATA ---
@@ -123,7 +109,7 @@ export default function Tasks() {
 
       {/* FILTER TABS */}
       <Box sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={filterStatus} onChange={(e, v) => setFilterStatus(v)} textColor="primary" indicatorColor="primary">
+        <Tabs value={filterStatus} onChange={(_e, v) => setFilterStatus(v)} textColor="primary" indicatorColor="primary">
           <Tab label="À faire" value="ALL" sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 500 }} />
           <Tab label="Terminées" value="COMPLETED" sx={{ textTransform: 'none', fontSize: '1rem', fontWeight: 500 }} />
         </Tabs>

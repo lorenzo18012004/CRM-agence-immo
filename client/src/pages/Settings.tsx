@@ -5,7 +5,6 @@ import {
   TextField,
   Typography,
   Grid,
-  CircularProgress,
   Divider,
   Switch,
   FormControlLabel,
@@ -22,7 +21,6 @@ import {
   Palette as ThemeIcon,
   Save as SaveIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { AgencySettings } from '../types';
 
 const MOCK_SETTINGS: AgencySettings = {
@@ -34,7 +32,6 @@ const MOCK_SETTINGS: AgencySettings = {
 export default function Settings() {
   const [activeTab, setActiveTab] = useState('AGENCY');
   const [settings, setSettings] = useState<AgencySettings>(MOCK_SETTINGS);
-  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Mock Notifications State
