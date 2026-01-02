@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box,
-  Paper,
   Typography,
   Grid,
   Button,
@@ -116,8 +115,8 @@ export default function PropertyDetail() {
       setError(null);
       setSuccess(false);
 
-      const response = await axios.put(`/properties/${id}`, formData);
-      setProperty(response.data);
+      const { data } = await axios.put(`/properties/${id}`, formData);
+      setProperty(data);
       setIsEditing(false);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
