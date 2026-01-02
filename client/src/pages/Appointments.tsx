@@ -13,7 +13,7 @@ import {
   Person as PersonIcon,
   Home as HomeIcon
 } from '@mui/icons-material';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 interface Appointment {
@@ -27,13 +27,6 @@ interface Appointment {
   property?: { id: string; title: string; reference: string };
   type: 'VISIT' | 'SIGNING' | 'ESTIMATION' | 'MEETING';
 }
-
-const statusColors: Record<string, string> = {
-  CONFIRMED: 'var(--success-color)',
-  SCHEDULED: 'var(--primary)',
-  COMPLETED: 'var(--text-tertiary)',
-  CANCELLED: 'var(--danger-color)',
-};
 
 const typeColors: Record<string, string> = {
   VISIT: '#3b82f6', // Blue

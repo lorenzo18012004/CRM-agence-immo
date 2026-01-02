@@ -1,12 +1,9 @@
 import { useEffect, useState } from 'react';
 import {
   Box,
-  Button,
   IconButton,
   TextField,
-  InputAdornment,
   CircularProgress,
-  Typography,
   Avatar,
   Badge,
   List,
@@ -24,7 +21,6 @@ import {
   VideoCall as VideoIcon,
   AttachFile as AttachIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

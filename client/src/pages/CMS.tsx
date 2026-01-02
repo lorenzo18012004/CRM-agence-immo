@@ -1,14 +1,11 @@
 import { useState } from 'react';
 import {
   Box,
-  Paper,
-  Typography,
   Tabs,
   Tab,
   Button,
   IconButton,
-  Chip,
-  Grid
+  Chip
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -45,7 +42,7 @@ const MOCK_POSTS: ContentItem[] = [
 export default function CMS() {
   const [tabValue, setTabValue] = useState(0);
 
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 

@@ -3,28 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
-  IconButton,
   TextField,
   InputAdornment,
   CircularProgress,
   Chip,
   Tabs,
   Tab,
-  Typography,
   Avatar
 } from '@mui/material';
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  Visibility as ViewIcon,
   People as PeopleIcon,
   Phone as PhoneIcon,
   Email as EmailIcon,
-  LocationOn as LocationIcon,
-  Star as StarIcon,
-  FolderShared as ClientIcon
+  LocationOn as LocationIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { Client } from '../types';
 
 const clientTypeLabels: Record<string, string> = {
@@ -128,7 +122,7 @@ export default function Clients() {
             }}
             sx={{ minWidth: 250 }}
           />
-          <Tabs value={filterType} onChange={(e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
+          <Tabs value={filterType} onChange={(_e, v) => setFilterType(v)} textColor="inherit" indicatorColor="primary">
             <Tab label="Tous" value="ALL" sx={{ textTransform: 'none' }} />
             <Tab label="Acheteurs" value="BUYER" sx={{ textTransform: 'none' }} />
             <Tab label="Vendeurs" value="SELLER" sx={{ textTransform: 'none' }} />
