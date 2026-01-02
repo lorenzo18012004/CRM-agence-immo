@@ -184,7 +184,7 @@ export default function PropertyDetail() {
       const formData = new FormData();
       formData.append('photo', file);
 
-      const response = await axios.post(`/properties/${id}/photos`, formData, {
+      await axios.post(`/properties/${id}/photos`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
