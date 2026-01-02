@@ -56,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string, agencyCode: string) => {
     const response = await axios.post('/auth/login', { email, password, agencyCode });
-    const { user, token, agency } = response.data;
+    const { user, token } = response.data;
     setUser(user);
     setToken(token);
     setAgencyCode(agencyCode);

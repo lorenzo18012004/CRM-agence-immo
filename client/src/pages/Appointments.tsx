@@ -2,26 +2,17 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  IconButton,
-  TextField,
-  InputAdornment,
   CircularProgress,
-  Typography,
-  Chip,
   Avatar,
   AvatarGroup
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Search as SearchIcon,
   Event as EventIcon,
-  Schedule as TimeIcon,
   LocationOn as LocationIcon,
-  CheckCircle as ConfirmIcon,
   Person as PersonIcon,
   Home as HomeIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format, isSameDay } from 'date-fns';
 import { fr } from 'date-fns/locale';
 

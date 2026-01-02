@@ -302,7 +302,7 @@ export default function Analytics() {
           fullMark: Math.max(...(apiData.propertyTypeData?.map((i: any) => i.value) || [0])) * 1.2,
         })) || [],
         propertyTypes: apiData.propertyTypeData || [],
-        topAgents: (apiData.agentPerformance || []).map((agent: any, idx: number) => {
+        topAgents: (apiData.agentPerformance || []).map((agent: any) => {
           if (!agent.user) {
             return null;
           }
