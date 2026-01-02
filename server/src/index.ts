@@ -45,7 +45,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // For local development
-if (require.main === module || process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' && typeof require !== 'undefined' && require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
   });

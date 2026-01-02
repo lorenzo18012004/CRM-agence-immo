@@ -1,7 +1,4 @@
-// This file is for Vercel serverless functions
-// It re-exports the Express app
-
+// Vercel serverless function entry point
 import app from '../src/index';
 
 export default app;
-

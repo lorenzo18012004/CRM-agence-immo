@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════════
+   DÉPLOIEMENT VERCEL - INSTRUCTIONS SIMPLES
+═══════════════════════════════════════════════════════════════
+
+J'ai préparé tous les fichiers. Il vous reste 2 choses à faire :
+
+1. ALLER SUR https://vercel.com
+   - Connectez-vous (ou créez un compte)
+   - Cliquez sur "Add New Project"
+
+2. DÉPLOYER LE BACKEND :
+   - Importez le dossier "server"
+   - Nom du projet : crm-backend
+   - Variables d'environnement à ajouter :
+     * DATABASE_URL = votre URL Supabase complète
+     * JWT_SECRET = ma-cle-secrete-123456789
+   - Cliquez "Deploy"
+   - NOTEZ L'URL (ex: https://crm-backend-xxx.vercel.app)
+
+3. DÉPLOYER LE FRONTEND :
+   - Importez le dossier "client"
+   - Nom du projet : crm-frontend
+   - Variables d'environnement :
+     * VITE_API_URL = https://VOTRE-BACKEND-URL.vercel.app/api
+   - Cliquez "Deploy"
+
+4. TESTER :
+   - Ouvrez l'URL du frontend
+   - Connectez-vous : admin@example.com / admin123
+
+═══════════════════════════════════════════════════════════════
+
