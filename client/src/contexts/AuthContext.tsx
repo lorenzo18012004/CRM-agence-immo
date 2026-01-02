@@ -5,7 +5,9 @@ import { User } from '../types';
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  agencyCode: string | null;
+  verifyAgency: (code: string) => Promise<any>;
+  login: (email: string, password: string, agencyCode: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -19,6 +21,7 @@ axios.defaults.baseURL = API_URL;
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [agencyCode, setAgencyCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -44,24 +47,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string) => {
-    const response = await axios.post('/auth/login', { email, password });
-    const { user, token } = response.data;
+  const verifyAgency = async (code: string) => {
+    const response = await axios.post('/auth/verify-agency', { code });
+    setAgencyCode(code);
+    localStorage.setItem('agencyCode', code);
+    return response.data.agency;
+  };
+
+  const login = async (email: string, password: string, agencyCode: string) => {
+    const response = await axios.post('/auth/login', { email, password, agencyCode });
+    const { user, token, agency } = response.data;
     setUser(user);
     setToken(token);
+    setAgencyCode(agencyCode);
     localStorage.setItem('token', token);
+    localStorage.setItem('agencyCode', agencyCode);
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   };
 
   const logout = () => {
     setUser(null);
     setToken(null);
+    setAgencyCode(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('agencyCode');
     delete axios.defaults.headers.common['Authorization'];
   };
 
+  useEffect(() => {
+    const storedAgencyCode = localStorage.getItem('agencyCode');
+    if (storedAgencyCode) {
+      setAgencyCode(storedAgencyCode);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, agencyCode, verifyAgency, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

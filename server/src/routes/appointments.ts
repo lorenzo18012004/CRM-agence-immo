@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { body, validationResult } from 'express-validator';
@@ -12,6 +12,12 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
     const { startDate, endDate, status, userId, page = '1', limit = '50' } = req.query;
 
     const where: any = {};
+    
+    // Filtrer par agence (sauf super admin)
+    if (!req.isSuperAdmin && req.agencyId) {
+      where.agencyId = req.agencyId;
+    }
+    
     if (status) where.status = status;
     if (userId) where.userId = userId;
     if (startDate || endDate) {
@@ -91,6 +97,11 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Rendez-vous non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (appointment as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     res.json(appointment);
   } catch (error) {
     console.error(error);
@@ -107,7 +118,7 @@ router.post(
     body('startDate').notEmpty(),
     body('endDate').notEmpty(),
   ],
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -153,6 +164,11 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Rendez-vous non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (appointment as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     const data = { ...req.body };
     if (data.startDate) data.startDate = new Date(data.startDate);
     if (data.endDate) data.endDate = new Date(data.endDate);
@@ -183,6 +199,19 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 // Delete appointment
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ error: 'Rendez-vous non trouvé' });
+    }
+
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (appointment as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     await prisma.appointment.delete({
       where: { id: req.params.id },
     });

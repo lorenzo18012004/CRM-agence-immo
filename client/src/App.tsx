@@ -6,6 +6,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Properties from './pages/Properties';
+import PropertyNew from './pages/PropertyNew';
 import PropertyDetail from './pages/PropertyDetail';
 import Contracts from './pages/Contracts';
 import ContractDetail from './pages/ContractDetail';
@@ -16,6 +17,12 @@ import Appointments from './pages/Appointments';
 import CMS from './pages/CMS';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import Analytics from './pages/Analytics';
+import Mandates from './pages/Mandates';
+import Tasks from './pages/Tasks';
+import Offers from './pages/Offers';
+import Payments from './pages/Payments';
+import Communications from './pages/Communications';
 import Layout from './components/Layout';
 
 const theme = createTheme({
@@ -48,13 +55,20 @@ function App() {
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="properties" element={<Properties />} />
+              <Route path="properties/new" element={<PropertyNew />} />
               <Route path="properties/:id" element={<PropertyDetail />} />
               <Route path="contracts" element={<Contracts />} />
               <Route path="contracts/:id" element={<ContractDetail />} />
               <Route path="clients" element={<Clients />} />
               <Route path="clients/:id" element={<ClientDetail />} />
+              <Route path="analytics" element={<Analytics />} />
+              <Route path="mandates" element={<Mandates />} />
+              <Route path="tasks" element={<Tasks />} />
+              <Route path="offers" element={<Offers />} />
+              <Route path="payments" element={<Payments />} />
               <Route path="documents" element={<Documents />} />
               <Route path="appointments" element={<Appointments />} />
+              <Route path="communications" element={<Communications />} />
               <Route path="cms" element={<CMS />} />
               <Route path="users" element={<Users />} />
               <Route path="settings" element={<Settings />} />

@@ -1,12 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export interface AuthRequest extends Request {
   userId?: string;
   userRole?: string;
+  agencyId?: string | null;
+  isSuperAdmin?: boolean;
 }
 
-export const authenticate = (
+export const authenticate = async (
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -23,8 +28,25 @@ export const authenticate = (
       role: string;
     };
 
-    req.userId = decoded.userId;
-    req.userRole = decoded.role;
+    // Get user with agency info
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: {
+        id: true,
+        role: true,
+        agencyId: true,
+        isActive: true,
+      },
+    });
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({ error: 'Utilisateur invalide ou inactif' });
+    }
+
+    req.userId = user.id;
+    req.userRole = user.role;
+    req.agencyId = user.agencyId;
+    req.isSuperAdmin = user.role === 'SUPER_ADMIN';
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Token invalide' });

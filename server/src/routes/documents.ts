@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -38,6 +38,12 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
     const { type, propertyId, contractId, clientId, page = '1', limit = '20' } = req.query;
 
     const where: any = {};
+    
+    // Filtrer par agence (sauf super admin)
+    if (!req.isSuperAdmin && req.agencyId) {
+      where.agencyId = req.agencyId;
+    }
+    
     if (type) where.type = type;
     if (propertyId) where.propertyId = propertyId;
     if (contractId) where.contractId = contractId;
@@ -118,6 +124,11 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Document non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && document.agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     res.json(document);
   } catch (error) {
     console.error(error);
@@ -175,6 +186,11 @@ router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
 
     if (!document) {
       return res.status(404).json({ error: 'Document non trouvé' });
+    }
+
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && document.agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
     }
 
     // Delete file from filesystem

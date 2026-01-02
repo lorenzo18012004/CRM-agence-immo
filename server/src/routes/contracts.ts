@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 import { authenticate, AuthRequest } from '../middleware/auth';
 import { body, validationResult } from 'express-validator';
@@ -12,6 +12,12 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
     const { type, status, page = '1', limit = '20' } = req.query;
 
     const where: any = {};
+    
+    // Filtrer par agence (sauf super admin)
+    if (!req.isSuperAdmin && req.agencyId) {
+      where.agencyId = req.agencyId;
+    }
+    
     if (type) where.type = type;
     if (status) where.status = status;
 
@@ -107,6 +113,11 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Contrat non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (contract as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     res.json(contract);
   } catch (error) {
     console.error(error);
@@ -125,7 +136,7 @@ router.post(
     body('propertyId').notEmpty(),
     body('clientId').notEmpty(),
   ],
-  async (req: AuthRequest, res) => {
+  async (req: AuthRequest, res: Response) => {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -179,6 +190,11 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Contrat non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (contract as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     const data = { ...req.body };
     if (data.startDate) data.startDate = new Date(data.startDate);
     if (data.endDate) data.endDate = new Date(data.endDate);
@@ -210,6 +226,19 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 // Delete contract
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
+    const contract = await prisma.contract.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!contract) {
+      return res.status(404).json({ error: 'Contrat non trouvé' });
+    }
+
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && (contract as any).agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     await prisma.contract.delete({
       where: { id: req.params.id },
     });

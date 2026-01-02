@@ -1,0 +1,8 @@
+node_modules/
+.prisma/
+dist/
+build/
+*.log
+.env
+.env.local
+

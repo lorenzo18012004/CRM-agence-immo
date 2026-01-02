@@ -11,6 +11,7 @@ datasource db {
 }
 
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
   AGENT
   MANAGER
@@ -57,230 +58,321 @@ enum ClientType {
   PROSPECT
 }
 
+enum MandateType {
+  EXCLUSIVE
+  NON_EXCLUSIVE
+  OPEN
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTER_OFFER
+  WITHDRAWN
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum CommunicationType {
+  EMAIL
+  SMS
+  CALL
+  MEETING
+}
+
 model User {
-  id            String   @id @default(uuid())
-  email         String   @unique
-  password      String
-  firstName     String
-  lastName      String
-  phone         String?
-  role          UserRole @default(AGENT)
-  isActive      Boolean  @default(true)
-  avatar        String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      UserRole @default(AGENT)
+  isActive  Boolean  @default(true)
+  avatar    String?
+  agencyId  String?
+  agency    Agency?  @relation(fields: [agencyId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  properties    Property[]
-  contracts     Contract[]
-  appointments  Appointment[]
-  clients       Client[]
-  documents     Document[]
-  cmsPages      CMSPage[]
-  cmsPosts      CMSPost[]
+  properties     Property[]
+  contracts      Contract[]
+  appointments   Appointment[]
+  clients        Client[]
+  documents      Document[]
+  cmsPages       CMSPage[]
+  cmsPosts       CMSPost[]
+  mandates       Mandate[]
+  tasks          Task[]
+  offers         Offer[]
+  payments       Payment[]
+  savedSearches  SavedSearch[]
+  communications Communication[]
+
+  @@index([agencyId])
 }
 
 model Client {
-  id            String     @id @default(uuid())
-  firstName     String
-  lastName      String
-  email         String?
-  phone         String
-  address       String?
-  city          String?
-  postalCode    String?
-  country       String?
-  clientType    ClientType
-  notes         String?    @db.Text
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  userId        String
-  user          User       @relation(fields: [userId], references: [id])
+  id         String     @id @default(uuid())
+  firstName  String
+  lastName   String
+  email      String?
+  phone      String
+  address    String?
+  city       String?
+  postalCode String?
+  country    String?
+  clientType ClientType
+  notes      String?    @db.Text
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  agencyId   String
+  agency     Agency     @relation(fields: [agencyId], references: [id])
 
   // Relations
-  properties    Property[]
-  contracts     Contract[]
-  appointments  Appointment[]
-  documents     Document[]
+  properties     Property[]
+  contracts      Contract[]
+  appointments   Appointment[]
+  documents      Document[]
+  mandates       Mandate[]
+  tasks          Task[]
+  offers         Offer[]
+  payments       Payment[]
+  communications Communication[]
 
   @@index([email])
   @@index([phone])
+  @@index([agencyId])
 }
 
 model Property {
-  id            String         @id @default(uuid())
-  title         String
-  description   String?        @db.Text
-  type          PropertyType
-  status        PropertyStatus @default(AVAILABLE)
-  address       String
-  city          String
-  postalCode    String
-  country       String         @default("France")
-  price         Float
-  surface       Float          // m²
-  rooms         Int?
-  bedrooms      Int?
-  bathrooms     Int?
-  floor         Int?
-  hasElevator   Boolean        @default(false)
-  hasParking    Boolean        @default(false)
-  hasBalcony    Boolean        @default(false)
-  hasGarden     Boolean        @default(false)
-  yearBuilt     Int?
-  energyClass   String?
-  co2Emission    Float?
-  latitude      Float?
-  longitude     Float?
-  reference     String         @unique
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  userId        String
-  user          User           @relation(fields: [userId], references: [id])
-  clientId      String?
-  client        Client?        @relation(fields: [clientId], references: [id])
+  id          String         @id @default(uuid())
+  title       String
+  description String?        @db.Text
+  type        PropertyType
+  status      PropertyStatus @default(AVAILABLE)
+  address     String
+  city        String
+  postalCode  String
+  country     String         @default("France")
+  price       Float
+  surface     Float // m²
+  rooms       Int?
+  bedrooms    Int?
+  bathrooms   Int?
+  floor       Int?
+  hasElevator Boolean        @default(false)
+  hasParking  Boolean        @default(false)
+  hasBalcony  Boolean        @default(false)
+  hasGarden   Boolean        @default(false)
+  yearBuilt   Int?
+  energyClass String?
+  co2Emission Float?
+  latitude    Float?
+  longitude   Float?
+  reference   String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  agencyId    String
+  agency      Agency         @relation(fields: [agencyId], references: [id])
+  clientId    String?
+  client      Client?        @relation(fields: [clientId], references: [id])
 
   // Relations
-  photos        PropertyPhoto[]
-  contracts     Contract[]
-  documents     Document[]
-  appointments  Appointment[]
+  photos         PropertyPhoto[]
+  contracts      Contract[]
+  documents      Document[]
+  appointments   Appointment[]
+  mandates       Mandate[]
+  offers         Offer[]
+  tasks          Task[]
+  communications Communication[]
 
+  @@unique([agencyId, reference])
   @@index([status])
   @@index([type])
   @@index([city])
   @@index([reference])
+  @@index([agencyId])
 }
 
 model PropertyPhoto {
-  id          String   @id @default(uuid())
-  url         String
-  filename    String
-  isMain      Boolean  @default(false)
-  order       Int      @default(0)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(uuid())
+  url        String
+  filename   String
+  isMain     Boolean  @default(false)
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
   propertyId String
-  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId])
 }
 
 model Contract {
-  id              String       @id @default(uuid())
-  contractNumber  String       @unique
-  type            ContractType
-  startDate       DateTime
-  endDate         DateTime?
-  price           Float
-  commission      Float?
-  commissionRate  Float?
-  status          String       @default("DRAFT") // DRAFT, ACTIVE, COMPLETED, CANCELLED
-  notes           String?      @db.Text
-  signedDate      DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  userId          String
-  user            User         @relation(fields: [userId], references: [id])
-  propertyId      String
-  property        Property     @relation(fields: [propertyId], references: [id])
-  clientId        String
-  client          Client       @relation(fields: [clientId], references: [id])
+  id             String       @id @default(uuid())
+  contractNumber String
+  type           ContractType
+  startDate      DateTime
+  endDate        DateTime?
+  price          Float
+  commission     Float?
+  commissionRate Float?
+  status         String       @default("DRAFT") // DRAFT, ACTIVE, COMPLETED, CANCELLED
+  notes          String?      @db.Text
+  signedDate     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+  propertyId     String
+  property       Property     @relation(fields: [propertyId], references: [id])
+  clientId       String
+  client         Client       @relation(fields: [clientId], references: [id])
+  agencyId       String
+  agency         Agency       @relation(fields: [agencyId], references: [id])
 
   // Relations
-  documents       Document[]
+  documents Document[]
+  tasks     Task[]
+  payments  Payment[]
 
+  @@unique([agencyId, contractNumber])
   @@index([contractNumber])
   @@index([status])
   @@index([type])
+  @@index([agencyId])
 }
 
 model Document {
-  id            String       @id @default(uuid())
-  filename      String
-  originalName  String
-  path          String
-  mimeType      String
-  size          Int          // bytes
-  type          DocumentType
-  description   String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  userId        String
-  user          User         @relation(fields: [userId], references: [id])
-  propertyId    String?
-  property      Property?    @relation(fields: [propertyId], references: [id])
-  contractId    String?
-  contract      Contract?    @relation(fields: [contractId], references: [id])
-  clientId      String?
-  client        Client?      @relation(fields: [clientId], references: [id])
+  id           String       @id @default(uuid())
+  filename     String
+  originalName String
+  path         String
+  mimeType     String
+  size         Int // bytes
+  type         DocumentType
+  description  String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  agencyId     String
+  agency       Agency       @relation(fields: [agencyId], references: [id])
+  propertyId   String?
+  property     Property?    @relation(fields: [propertyId], references: [id])
+  contractId   String?
+  contract     Contract?    @relation(fields: [contractId], references: [id])
+  clientId     String?
+  client       Client?      @relation(fields: [clientId], references: [id])
 
   @@index([type])
   @@index([propertyId])
   @@index([contractId])
   @@index([clientId])
+  @@index([agencyId])
 }
 
 model Appointment {
-  id          String   @id @default(uuid())
-  title       String
-  description String?  @db.Text
-  startDate   DateTime
-  endDate     DateTime
-  location    String?
-  status      String   @default("SCHEDULED") // SCHEDULED, CONFIRMED, COMPLETED, CANCELLED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  clientId    String?
-  client      Client?  @relation(fields: [clientId], references: [id])
-  propertyId  String?
-  property    Property? @relation(fields: [propertyId], references: [id])
+  id           String    @id @default(uuid())
+  title        String
+  description  String?   @db.Text
+  startDate    DateTime
+  endDate      DateTime
+  location     String?
+  status       String    @default("SCHEDULED") // SCHEDULED, CONFIRMED, COMPLETED, CANCELLED
+  feedback     String?   @db.Text // Feedback après visite
+  feedbackDate DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  agencyId     String
+  agency       Agency    @relation(fields: [agencyId], references: [id])
+  clientId     String?
+  client       Client?   @relation(fields: [clientId], references: [id])
+  propertyId   String?
+  property     Property? @relation(fields: [propertyId], references: [id])
 
   @@index([startDate])
   @@index([userId])
+  @@index([agencyId])
 }
 
 model CMSPage {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  content     String   @db.Text
-  metaTitle   String?
+  id              String   @id @default(uuid())
+  title           String
+  slug            String
+  content         String   @db.Text
+  metaTitle       String?
   metaDescription String?
-  isPublished Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
+  isPublished     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  agencyId        String
+  agency          Agency   @relation(fields: [agencyId], references: [id])
 
+  @@unique([agencyId, slug])
   @@index([slug])
   @@index([isPublished])
+  @@index([agencyId])
 }
 
 model CMSPost {
-  id            String   @id @default(uuid())
-  title         String
-  slug          String   @unique
-  excerpt       String?  @db.Text
-  content       String   @db.Text
-  featuredImage String?
-  metaTitle     String?
+  id              String    @id @default(uuid())
+  title           String
+  slug            String
+  excerpt         String?   @db.Text
+  content         String    @db.Text
+  featuredImage   String?
+  metaTitle       String?
   metaDescription String?
-  isPublished   Boolean  @default(false)
-  publishedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  agencyId        String
+  agency          Agency    @relation(fields: [agencyId], references: [id])
 
+  @@unique([agencyId, slug])
   @@index([slug])
   @@index([isPublished])
   @@index([publishedAt])
+  @@index([agencyId])
 }
 
-model AgencySettings {
+model Agency {
   id          String   @id @default(uuid())
+  code        String   @unique
   name        String
   address     String?
   city        String?
@@ -292,7 +384,184 @@ model AgencySettings {
   logo        String?
   description String?  @db.Text
   siret       String?
+  isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  users          User[]
+  properties     Property[]
+  clients        Client[]
+  contracts      Contract[]
+  documents      Document[]
+  appointments   Appointment[]
+  cmsPages       CMSPage[]
+  cmsPosts       CMSPost[]
+  mandates       Mandate[]
+  tasks          Task[]
+  offers         Offer[]
+  payments       Payment[]
+  savedSearches  SavedSearch[]
+  communications Communication[]
+
+  @@index([code])
 }
 
+// Mandats (mandats de vente/location)
+model Mandate {
+  id             String      @id @default(uuid())
+  mandateNumber  String
+  type           MandateType
+  startDate      DateTime
+  endDate        DateTime?
+  price          Float? // Prix de vente souhaité
+  commissionRate Float? // Taux de commission
+  status         String      @default("ACTIVE") // ACTIVE, EXPIRED, TERMINATED, RENEWED
+  notes          String?     @db.Text
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  userId         String
+  user           User        @relation(fields: [userId], references: [id])
+  propertyId     String
+  property       Property    @relation(fields: [propertyId], references: [id])
+  clientId       String
+  client         Client      @relation(fields: [clientId], references: [id])
+  agencyId       String
+  agency         Agency      @relation(fields: [agencyId], references: [id])
+
+  @@unique([agencyId, mandateNumber])
+  @@index([status])
+  @@index([type])
+  @@index([endDate])
+  @@index([agencyId])
+}
+
+// Tâches et rappels
+model Task {
+  id          String       @id @default(uuid())
+  title       String
+  description String?      @db.Text
+  status      TaskStatus   @default(PENDING)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  agencyId    String
+  agency      Agency       @relation(fields: [agencyId], references: [id])
+  propertyId  String?
+  property    Property?    @relation(fields: [propertyId], references: [id])
+  clientId    String?
+  client      Client?      @relation(fields: [clientId], references: [id])
+  contractId  String?
+  contract    Contract?    @relation(fields: [contractId], references: [id])
+
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([userId])
+  @@index([agencyId])
+}
+
+// Offres et négociations
+model Offer {
+  id            String      @id @default(uuid())
+  offerNumber   String
+  amount        Float
+  status        OfferStatus @default(PENDING)
+  conditions    String?     @db.Text
+  notes         String?     @db.Text
+  submittedDate DateTime
+  responseDate  DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  propertyId    String
+  property      Property    @relation(fields: [propertyId], references: [id])
+  clientId      String
+  client        Client      @relation(fields: [clientId], references: [id])
+  agencyId      String
+  agency        Agency      @relation(fields: [agencyId], references: [id])
+
+  @@unique([agencyId, offerNumber])
+  @@index([status])
+  @@index([submittedDate])
+  @@index([agencyId])
+}
+
+// Paiements et commissions
+model Payment {
+  id            String        @id @default(uuid())
+  paymentNumber String
+  amount        Float
+  status        PaymentStatus @default(PENDING)
+  type          String // COMMISSION, RENT, SALE, OTHER
+  dueDate       DateTime?
+  paidDate      DateTime?
+  method        String? // CASH, CHECK, TRANSFER, CARD
+  reference     String? // Référence paiement
+  notes         String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  contractId    String?
+  contract      Contract?     @relation(fields: [contractId], references: [id])
+  clientId      String?
+  client        Client?       @relation(fields: [clientId], references: [id])
+  agencyId      String
+  agency        Agency        @relation(fields: [agencyId], references: [id])
+
+  @@unique([agencyId, paymentNumber])
+  @@index([status])
+  @@index([type])
+  @@index([dueDate])
+  @@index([agencyId])
+}
+
+// Recherches sauvegardées
+model SavedSearch {
+  id        String   @id @default(uuid())
+  name      String
+  filters   String   @db.Text // JSON des filtres
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  agencyId  String
+  agency    Agency   @relation(fields: [agencyId], references: [id])
+
+  @@index([userId])
+  @@index([agencyId])
+}
+
+// Communication (historique emails, SMS, appels)
+model Communication {
+  id         String            @id @default(uuid())
+  type       CommunicationType
+  subject    String?
+  content    String?           @db.Text
+  recipient  String // Email ou téléphone
+  status     String            @default("SENT") // SENT, DELIVERED, FAILED, OPENED, READ
+  sentAt     DateTime          @default(now())
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  userId     String
+  user       User              @relation(fields: [userId], references: [id])
+  agencyId   String
+  agency     Agency            @relation(fields: [agencyId], references: [id])
+  clientId   String?
+  client     Client?           @relation(fields: [clientId], references: [id])
+  propertyId String?
+  property   Property?         @relation(fields: [propertyId], references: [id])
+
+  @@index([type])
+  @@index([status])
+  @@index([sentAt])
+  @@index([userId])
+  @@index([agencyId])
+}

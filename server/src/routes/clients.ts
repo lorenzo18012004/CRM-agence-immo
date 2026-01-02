@@ -12,6 +12,12 @@ router.get('/', authenticate, async (req: AuthRequest, res) => {
     const { clientType, search, page = '1', limit = '20' } = req.query;
 
     const where: any = {};
+    
+    // Filtrer par agence (sauf super admin)
+    if (!req.isSuperAdmin && req.agencyId) {
+      where.agencyId = req.agencyId;
+    }
+    
     if (clientType) where.clientType = clientType;
     if (search) {
       where.OR = [
@@ -109,6 +115,11 @@ router.get('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Client non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && client.agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     res.json(client);
   } catch (error) {
     console.error(error);
@@ -133,10 +144,15 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
+      if (!req.agencyId) {
+        return res.status(400).json({ error: 'Vous n\'êtes pas associé à une agence' });
+      }
+
       const client = await prisma.client.create({
         data: {
           ...req.body,
           userId: req.userId!,
+          agencyId: req.agencyId,
         },
         include: {
           user: {
@@ -168,6 +184,11 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
       return res.status(404).json({ error: 'Client non trouvé' });
     }
 
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && client.agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     const updated = await prisma.client.update({
       where: { id: req.params.id },
       data: req.body,
@@ -192,6 +213,19 @@ router.put('/:id', authenticate, async (req: AuthRequest, res) => {
 // Delete client
 router.delete('/:id', authenticate, async (req: AuthRequest, res) => {
   try {
+    const client = await prisma.client.findUnique({
+      where: { id: req.params.id },
+    });
+
+    if (!client) {
+      return res.status(404).json({ error: 'Client non trouvé' });
+    }
+
+    // Vérifier l'accès
+    if (!req.isSuperAdmin && client.agencyId !== req.agencyId) {
+      return res.status(403).json({ error: 'Accès refusé' });
+    }
+
     await prisma.client.delete({
       where: { id: req.params.id },
     });

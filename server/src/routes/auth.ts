@@ -69,10 +69,10 @@ router.post(
   }
 );
 
-// Login
+// Verify agency code
 router.post(
-  '/login',
-  [body('email').isEmail(), body('password').notEmpty()],
+  '/verify-agency',
+  [body('code').notEmpty()],
   async (req, res) => {
     try {
       const errors = validationResult(req);
@@ -80,14 +80,76 @@ router.post(
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { email, password } = req.body;
+      const { code } = req.body;
 
+      const agency = await prisma.agency.findUnique({
+        where: { code },
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          logo: true,
+          isActive: true,
+        },
+      });
+
+      if (!agency || !agency.isActive) {
+        return res.status(404).json({ error: 'Code agence invalide ou agence inactive' });
+      }
+
+      res.json({
+        agency: {
+          id: agency.id,
+          code: agency.code,
+          name: agency.name,
+          logo: agency.logo,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
+// Login
+router.post(
+  '/login',
+  [
+    body('email').isEmail(),
+    body('password').notEmpty(),
+    body('agencyCode').notEmpty(),
+  ],
+  async (req, res) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { email, password, agencyCode } = req.body;
+
+      // Vérifier que l'agence existe et est active
+      const agency = await prisma.agency.findUnique({
+        where: { code: agencyCode },
+      });
+
+      if (!agency || !agency.isActive) {
+        return res.status(404).json({ error: 'Code agence invalide ou agence inactive' });
+      }
+
+      // Trouver l'utilisateur avec cet email ET cette agence
       const user = await prisma.user.findUnique({
         where: { email },
       });
 
       if (!user || !user.isActive) {
         return res.status(401).json({ error: 'Identifiants invalides' });
+      }
+
+      // Vérifier que l'utilisateur appartient à cette agence (sauf SUPER_ADMIN)
+      if (user.role !== 'SUPER_ADMIN' && user.agencyId !== agency.id) {
+        return res.status(403).json({ error: 'Vous n\'appartenez pas à cette agence' });
       }
 
       const isValidPassword = await bcrypt.compare(password, user.password);
@@ -97,7 +159,7 @@ router.post(
       }
 
       const token = jwt.sign(
-        { userId: user.id, role: user.role },
+        { userId: user.id, role: user.role, agencyId: user.agencyId },
         process.env.JWT_SECRET || '',
         { expiresIn: '7d' }
       );
@@ -111,6 +173,12 @@ router.post(
           role: user.role,
           phone: user.phone,
           avatar: user.avatar,
+          agencyId: user.agencyId,
+        },
+        agency: {
+          id: agency.id,
+          code: agency.code,
+          name: agency.name,
         },
         token,
       });
@@ -135,6 +203,13 @@ router.get('/me', authenticate, async (req: AuthRequest, res) => {
         phone: true,
         avatar: true,
         isActive: true,
+        agencyId: true,
+        agency: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         createdAt: true,
       },
     });

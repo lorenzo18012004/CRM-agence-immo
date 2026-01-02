@@ -14,6 +14,13 @@ import clientRoutes from './routes/clients';
 import appointmentRoutes from './routes/appointments';
 import cmsRoutes from './routes/cms';
 import agencyRoutes from './routes/agency';
+import mandateRoutes from './routes/mandates';
+import taskRoutes from './routes/tasks';
+import offerRoutes from './routes/offers';
+import paymentRoutes from './routes/payments';
+import communicationRoutes from './routes/communications';
+import savedSearchRoutes from './routes/saved-searches';
+import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
 
@@ -38,6 +45,13 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/cms', cmsRoutes);
 app.use('/api/agency', agencyRoutes);
+app.use('/api/mandates', mandateRoutes);
+app.use('/api/tasks', taskRoutes);
+app.use('/api/offers', offerRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/communications', communicationRoutes);
+app.use('/api/saved-searches', savedSearchRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -45,10 +59,13 @@ app.get('/api/health', (req, res) => {
 });
 
 // For local development
-if (process.env.NODE_ENV !== 'production' && typeof require !== 'undefined' && require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
+if (process.env.NODE_ENV !== 'production') {
+  // Check if we're running as a script (not imported)
+  if (typeof require !== 'undefined' && require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+    });
+  }
 }
 
 // Export for Vercel serverless
