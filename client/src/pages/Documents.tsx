@@ -48,7 +48,6 @@ export default function Documents() {
   const [filterType, setFilterType] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedDocId] = useState<string | null>(null);
 
   useEffect(() => {
     // Simulate Fetch
@@ -64,14 +63,12 @@ export default function Documents() {
     return <FileIcon sx={{ fontSize: 40, color: 'var(--text-secondary)' }} />;
   };
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, id: string) => {
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    setSelectedDocId(id);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedDocId(null);
   };
 
   const filteredDocs = documents.filter(d => {
