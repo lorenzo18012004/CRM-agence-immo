@@ -2,25 +2,18 @@ import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  IconButton,
-  TextField,
-  InputAdornment,
   CircularProgress,
-  Typography,
   Chip,
   Tabs,
   Tab
 } from '@mui/material';
 import {
   Add as AddIcon,
-  Search as SearchIcon,
   AccountBalanceWallet as WalletIcon,
   TrendingDown as ExpenseIcon,
   TrendingUp as IncomeIcon,
-  Receipt as BillIcon,
-  CheckCircle as PaidIcon
+  Receipt as BillIcon
 } from '@mui/icons-material';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -148,7 +141,7 @@ export default function Payments() {
 
       {/* TABS */}
       <Box sx={{ mb: 4, borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={filterStatus} onChange={(e, v) => setFilterStatus(v)} textColor="primary" indicatorColor="primary">
+        <Tabs value={filterStatus} onChange={(_e, v) => setFilterStatus(v)} textColor="primary" indicatorColor="primary">
           <Tab label="Tous" value="ALL" sx={{ textTransform: 'none', fontWeight: 500 }} />
           <Tab label="Payés" value="PAID" sx={{ textTransform: 'none', fontWeight: 500 }} />
           <Tab label="En Attente" value="PENDING" sx={{ textTransform: 'none', fontWeight: 500 }} />
