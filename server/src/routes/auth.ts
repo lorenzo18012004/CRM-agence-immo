@@ -81,9 +81,13 @@ router.post(
       }
 
       const { code } = req.body;
+      // Trim whitespace and normalize
+      const normalizedCode = code.trim();
+
+      console.log('🔍 Verifying agency code:', normalizedCode);
 
       const agency = await prisma.agency.findUnique({
-        where: { code },
+        where: { code: normalizedCode },
         select: {
           id: true,
           code: true,
@@ -93,7 +97,19 @@ router.post(
         },
       });
 
-      if (!agency || !agency.isActive) {
+      console.log('📋 Agency found:', agency ? { id: agency.id, code: agency.code, name: agency.name, isActive: agency.isActive } : 'null');
+
+      if (!agency) {
+        // Try to find all agencies to help debug
+        const allAgencies = await prisma.agency.findMany({
+          select: { code: true, name: true, isActive: true },
+        });
+        console.log('📋 All agencies in DB:', allAgencies);
+        return res.status(404).json({ error: 'Code agence invalide' });
+      }
+
+      if (!agency.isActive) {
+        console.log('⚠️ Agency found but inactive:', agency.code);
         return res.status(404).json({ error: 'Code agence invalide ou agence inactive' });
       }
 
@@ -106,7 +122,7 @@ router.post(
         },
       });
     } catch (error: any) {
-      console.error('Error in verify-agency:', error);
+      console.error('❌ Error in verify-agency:', error);
       // Log more details in development
       const errorMessage = process.env.NODE_ENV === 'production' 
         ? 'Erreur serveur' 
