@@ -9,9 +9,27 @@ const router = express.Router();
 const prisma = new PrismaClient();
 
 // Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// On Vercel, use /tmp which is the only writable directory
+// In local development, use the project uploads folder
+const uploadsDir = process.env.VERCEL 
+  ? '/tmp/uploads' 
+  : path.join(__dirname, '../../uploads');
+
+// Only try to create directory if not on Vercel (serverless)
+if (!process.env.VERCEL) {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} else {
+  // On Vercel, ensure /tmp/uploads exists
+  try {
+    if (!fs.existsSync('/tmp/uploads')) {
+      fs.mkdirSync('/tmp/uploads', { recursive: true });
+    }
+  } catch (error) {
+    // Ignore error if directory creation fails on Vercel
+    console.warn('Could not create uploads directory:', error);
+  }
 }
 
 // Configure multer
