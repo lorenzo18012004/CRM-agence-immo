@@ -123,6 +123,27 @@ router.post(
       });
     } catch (error: any) {
       console.error('❌ Error in verify-agency:', error);
+      console.error('❌ Error name:', error?.name);
+      console.error('❌ Error code:', error?.code);
+      console.error('❌ Error message:', error?.message);
+      console.error('❌ DATABASE_URL exists:', !!process.env.DATABASE_URL);
+      
+      // Check if it's a Prisma connection error
+      if (error?.code === 'P1001' || error?.message?.includes('Can\'t reach database server')) {
+        return res.status(500).json({ 
+          error: 'Impossible de se connecter à la base de données',
+          details: process.env.NODE_ENV !== 'production' ? error.message : undefined
+        });
+      }
+      
+      // Check if Prisma Client is not generated
+      if (error?.message?.includes('PrismaClient') || error?.message?.includes('@prisma/client')) {
+        return res.status(500).json({ 
+          error: 'Erreur de configuration Prisma',
+          details: process.env.NODE_ENV !== 'production' ? error.message : undefined
+        });
+      }
+      
       // Log more details in development
       const errorMessage = process.env.NODE_ENV === 'production' 
         ? 'Erreur serveur' 
